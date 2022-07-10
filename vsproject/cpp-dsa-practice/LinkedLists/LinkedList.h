@@ -57,7 +57,7 @@ public:
 	}
 
 	// Adds an node to the end of the list
-	T pop_front() // TODO find bug
+	T pop_front()
 	{
 		assert(_size != 0);
 
@@ -65,6 +65,8 @@ public:
 		T value = temp->_value;
 		_head = temp->_next;
 		delete temp;
+		_size--;
+
 		return value;
 	}
 
