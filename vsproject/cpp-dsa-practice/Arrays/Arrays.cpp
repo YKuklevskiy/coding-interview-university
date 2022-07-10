@@ -42,8 +42,6 @@ void checkAllParams(MyVector<int>& myvector, vector<int>& stdvector)
 
 int main()
 {
-    std::cout << "Hello World!\n";
-
     const int size = 10000;
 
     vector<int> std_vector(size);

@@ -22,6 +22,12 @@ public:
 		_size = size;
 	}
 
+	~MyVector()
+	{
+		if(_arr != NULL)
+			delete[] _arr;
+	}
+
 	// Returns element count
 	size_t size()
 	{
@@ -134,7 +140,7 @@ public:
 	}
 
 private:
-	T* _arr;
+	T* _arr = NULL;
 	size_t _size = 0;
 	size_t _capacity = 16;
 
