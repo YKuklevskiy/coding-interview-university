@@ -26,6 +26,14 @@ void fillRandom(MyVector<int>& myvector, vector<int>& stdvector)
     }
 }
 
+void memoryTest(int iterations)
+{
+    for (int i = 0; i < iterations; i++)
+    {
+        MyVector<int> v(30000); // should delete successfully at the end of iteration and free memory
+    }
+}
+
 void checkAllParams(MyVector<int>& myvector, vector<int>& stdvector)
 {
     assert(myvector.size() == stdvector.size());
@@ -105,6 +113,8 @@ int main()
     }
 
     checkAllParams(my_vector, std_vector);
+
+    memoryTest(100);
 
     system("pause");
 }

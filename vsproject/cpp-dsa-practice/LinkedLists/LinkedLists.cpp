@@ -98,6 +98,18 @@ LinkedList<int>* generateList(LinkedList<int>* list, std::vector<int>& vector)
     return list;
 }
 
+LinkedList<int>* generateList(LinkedList<int>* list)
+{
+    list = new LinkedList<int>();
+
+    for (int i = 0; i < LIST_SIZE; i++)
+    {
+        list->push_back(rand() % 50000);
+    }
+
+    return list;
+}
+
 bool checkRandomElement(LinkedList<int>* mylist, std::vector<int>& stdvector)
 {
     size_t index = rand() % mylist->size();
@@ -193,6 +205,14 @@ int main()
     }
 
     LinkedList_Tester<int>::checkAllParams(mylist, vector);
+
+    // Memory and destructor test
+    for (int i = 0; i < 100; i++)
+    {
+        delete mylist; mylist = NULL;
+        
+        mylist = generateList(mylist);
+    }
 
     system("pause");
 }
