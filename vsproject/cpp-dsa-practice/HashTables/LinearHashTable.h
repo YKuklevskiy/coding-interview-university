@@ -4,7 +4,7 @@
 #include <iostream>
 
 //
-//	---- from https://en.cppreference.com/w/cpp/types/void_t ----
+//	-------- from https://en.cppreference.com/w/cpp/types/void_t --------
 //
 
 // Variable template that checks if a type has begin() and end() member functions
@@ -20,7 +20,43 @@ constexpr bool is_iterable<
 > = true;
 
 //
-//	------------------------------------------------------------
+//	---------------------------------------------------------------------
+//
+
+//
+//		TODO Move hash functions inside the LinearHashTable class (somehow)
+//
+
+// O(1) space - types
+template<typename K, 
+	std::enable_if_t<is_iterable<K>, bool> = true>
+size_t hash(K key, size_t tableSize)
+{
+	const int hashConstant = 2777; // prime
+	size_t hashValue = 0;
+	for (auto iter = key.begin(); iter != key.end(); iter++)
+	{
+		size_t value = (size_t)*iter;
+		hashValue = ((hashValue * hashConstant) % tableSize + value) % tableSize;
+	}
+
+	return hashValue;
+}
+
+// iterable types
+template<typename K, 
+	std::enable_if_t<!is_iterable<K>, bool> = true>
+size_t hash(K key, size_t tableSize)
+{
+	const float hashConstant = (std::sqrt(5) - 1) / 2;
+	size_t value = (size_t)key;
+	size_t hashValue = std::floor(tableSize * std::fmod(value * hashConstant, 1.0f));
+
+	return hashValue;
+}
+
+//
+//		CLASSES
 //
 
 template<typename K, typename V>
@@ -42,38 +78,14 @@ public:
 		_table = new LinearTableEntry<K, V>[_tableSize];
 	}
 
-	// O(1) space - types
-	template<std::enable_if_t<is_iterable<K>::value, bool> = true>
-	size_t hash(K key)
-	{
-		const int hashConstant = 2777; // prime
-		size_t hashValue = 0;
-		for (auto iter = key.begin(); iter != key.end(); iter++)
-		{
-			size_t value = (size_t) *iter;
-			hashValue = ((hashValue * hashConstant) % _tableSize + value) % _tableSize;
-		}
-		
-		return hashValue;
-	}
-
-	// iterable types
-	template<std::enable_if_t<!is_iterable<K>::value, bool> = true>
-	size_t hash(K key)
-	{
-		const float hashConstant = (std::sqrt(5) - 1) / 2;
-		size_t value = (size_t)key;
-		size_t hashValue = std::floor(_tableSize * std::fmod(value * hashConstant, 1.0f));
-
-		return hashValue;
-	}
-
 	void insert(K key, V value) 
 	{
 		size_t entryIndex = findEmptyEntry(key);
 		_table[entryIndex].key = key;
 		_table[entryIndex].value = value;
 		_table[entryIndex].emptyFlag = 0;
+
+		_entryCount++;
 	}
 	
 	bool exists(K key) 
@@ -99,24 +111,27 @@ public:
 			return;
 		
 		_table[itemIndex].emptyFlag = -1;
+		_entryCount--;
 	}
 
 protected:
 
 	size_t findEmptyEntry(K key)
 	{
-		size_t hashValue = hash(key);
+		size_t hashValue = hash(key, _tableSize);
+
 		while (_table[hashValue].emptyFlag == 0)
 		{
 			hashValue = ++hashValue % _tableSize;
 		}
+
 		return hashValue;
 	}
 
-	// returns index 
+	// returns index of entry with the same key
 	size_t findIndex(K key)
 	{
-		size_t hashValue = hash(key);
+		size_t hashValue = hash(key, _tableSize);
 
 		while (_table[hashValue].emptyFlag != 1)
 		{
@@ -127,10 +142,6 @@ protected:
 		}
 		return -1;
 	}
-
-	size_t hash_integral(K key);
-
-	size_t hash_nonintegral(K key);
 
 private:
 	size_t _tableSize = 1;
