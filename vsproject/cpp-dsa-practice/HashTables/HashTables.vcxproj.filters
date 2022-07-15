@@ -23,5 +23,8 @@
     <ClInclude Include="IHashTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LinearHashTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
