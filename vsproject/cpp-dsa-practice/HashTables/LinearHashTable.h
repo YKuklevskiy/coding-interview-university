@@ -3,6 +3,26 @@
 #include <exception>
 #include <iostream>
 
+//
+//	---- from https://en.cppreference.com/w/cpp/types/void_t ----
+//
+
+// Variable template that checks if a type has begin() and end() member functions
+template <typename, typename = void>
+constexpr bool is_iterable{};
+
+template <typename T>
+constexpr bool is_iterable<
+	T,
+	std::void_t< decltype(std::declval<T>().begin()),
+	decltype(std::declval<T>().end())
+	>
+> = true;
+
+//
+//	------------------------------------------------------------
+//
+
 template<typename K, typename V>
 struct LinearTableEntry
 {
@@ -22,32 +42,51 @@ public:
 		_table = new LinearTableEntry<K, V>[_tableSize];
 	}
 
+	// O(1) space - types
+	template<std::enable_if_t<is_iterable<K>::value, bool> = true>
 	size_t hash(K key)
 	{
+		const int hashConstant = 2777; // prime
+		size_t hashValue = 0;
+		for (auto iter = key.begin(); iter != key.end(); iter++)
+		{
+			size_t value = (size_t) *iter;
+			hashValue = ((hashValue * hashConstant) % _tableSize + value) % _tableSize;
+		}
+		
+		return hashValue;
+	}
+
+	// iterable types
+	template<std::enable_if_t<!is_iterable<K>::value, bool> = true>
+	size_t hash(K key)
+	{
+		const float hashConstant = (std::sqrt(5) - 1) / 2;
 		size_t value = (size_t)key;
-		size_t hashValue = std::floor(_tableSize * std::fmod(value * c, 1.0f));
+		size_t hashValue = std::floor(_tableSize * std::fmod(value * hashConstant, 1.0f));
 
 		return hashValue;
 	}
 
 	void insert(K key, V value) 
 	{
-		_table[findEmptyEntry(key)].value = value;
-		_table[findEmptyEntry(key)].key = key;
-		_table[findEmptyEntry(key)].emptyFlag = 0;
+		size_t entryIndex = findEmptyEntry(key);
+		_table[entryIndex].key = key;
+		_table[entryIndex].value = value;
+		_table[entryIndex].emptyFlag = 0;
 	}
 	
 	bool exists(K key) 
 	{
 		size_t itemIndex = findIndex(key);
-		bool value = itemIndex != SIZE_MAX;
+		bool value = itemIndex != -1;
 		return value;
 	}
 	
 	V search(K key) 
 	{
 		size_t itemIndex = findIndex(key);
-		if(itemIndex == SIZE_MAX)
+		if(itemIndex == -1)
 			throw new std::exception("Item doesn't exist in table.");
 
 		return _table[itemIndex].value;
@@ -56,14 +95,13 @@ public:
 	void remove(K key) 
 	{
 		size_t itemIndex = findIndex(key);
-		if (itemIndex == SIZE_MAX)
+		if (itemIndex == -1)
 			return;
 		
 		_table[itemIndex].emptyFlag = -1;
 	}
 
 protected:
-	const float c = (std::sqrt(5) - 1) / 2;
 
 	size_t findEmptyEntry(K key)
 	{
@@ -75,6 +113,7 @@ protected:
 		return hashValue;
 	}
 
+	// returns index 
 	size_t findIndex(K key)
 	{
 		size_t hashValue = hash(key);
@@ -86,7 +125,7 @@ protected:
 
 			hashValue = ++hashValue % _tableSize;
 		}
-		return SIZE_MAX;
+		return -1;
 	}
 
 	size_t hash_integral(K key);
@@ -94,8 +133,8 @@ protected:
 	size_t hash_nonintegral(K key);
 
 private:
-	size_t _tableSize;
-	size_t _entryCount;
+	size_t _tableSize = 1;
+	size_t _entryCount = 0;
 
 	LinearTableEntry<K, V>* _table = NULL;
 };
