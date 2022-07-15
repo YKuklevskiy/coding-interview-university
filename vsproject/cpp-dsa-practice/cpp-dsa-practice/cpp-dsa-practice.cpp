@@ -2,5 +2,9 @@
 
 int main()
 {
-    std::cout << "Hello World!\n";
+    void* ptr = &ptr;
+    
+    std::cout << "Is 3rd year uni tied to my 3rd degree madness?\n";
+
+    std::cout << ptr;
 }
