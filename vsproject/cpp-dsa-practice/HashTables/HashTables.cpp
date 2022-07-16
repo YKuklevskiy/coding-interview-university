@@ -1,8 +1,9 @@
 #include <iostream>
 #include "LinearHashTable.h"
 #include <fstream>
+#include <string>
 
-const size_t TABLE_SIZE = 10000;
+const size_t TABLE_SIZE = 300;
 
 // Forgive me for clumpy and unreadable test code
 // How does test work:
@@ -12,7 +13,7 @@ const size_t TABLE_SIZE = 10000;
 // and notExistCount should also be zero
 int main()
 {
-    const bool showFirstTest = true;
+    const bool showFirstTest = false;
     const bool showSecondTest = true;
 
     //
@@ -56,18 +57,20 @@ int main()
         if (c == ' ' || c == '\n')
         {
             if (my_table_integral.exists(count))
+            {
                 text2 += my_table_integral.search(count) + "\n";
+                my_table_integral.remove(count);
+            }
             else
                 notExistCount++;
         }
         count++;
     }
     text2 += my_table_integral.search(count) + "\n";
+    my_table_integral.remove(count);
 
     if (showFirstTest)
     {
-        std::cout << notExistCount << "\n\n\n";
-
         std::cout << text1;
 
         std::cout << "\n\n\n";
@@ -76,6 +79,8 @@ int main()
         std::cout << "\n\n\n";
 
         std::cout << text2 << "\n\n\n";
+
+        std::cout << notExistCount << "\n\n\n";
 
         std::cout << "\n\n\n";
         for (int i = 0; i < 30; i++)
@@ -101,6 +106,7 @@ int main()
         if (c == ' ' || c == '\n')
         {
             text1 += "\n";
+            temp += std::to_string(count);
             my_table_string.insert(temp, temp);
             temp = "";
         }
@@ -125,8 +131,12 @@ int main()
     {
         if (c == ' ' || c == '\n')
         {
+            temp += std::to_string(count);
             if (my_table_string.exists(temp))
+            {
                 text2 += my_table_string.search(temp) + "\n";
+                my_table_string.remove(temp);
+            }
             else
                 notExistCount++;
 
@@ -137,11 +147,10 @@ int main()
         count++;
     }
     text2 += my_table_string.search(temp) + "\n";
+    my_table_string.remove(temp);
 
     if (showSecondTest)
     {
-        std::cout << notExistCount << "\n\n\n";
-
         std::cout << text1;
 
         std::cout << "\n\n\n";
@@ -150,6 +159,8 @@ int main()
         std::cout << "\n\n\n";
 
         std::cout << text2 << "\n\n\n";
+
+        std::cout << notExistCount << "\n\n\n";
     }
 
     system("pause");
