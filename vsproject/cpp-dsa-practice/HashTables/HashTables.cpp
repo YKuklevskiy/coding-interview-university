@@ -12,9 +12,8 @@ const size_t TABLE_SIZE = 10000;
 // and notExistCount should also be zero
 int main()
 {
-    const bool showFirstTest = false;
+    const bool showFirstTest = true;
     const bool showSecondTest = true;
-
 
     //
     //      integral key test

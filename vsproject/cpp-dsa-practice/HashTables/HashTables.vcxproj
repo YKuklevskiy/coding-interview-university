@@ -130,6 +130,7 @@
     <ClCompile Include="HashTables.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HashFunctions.h" />
     <ClInclude Include="IHashTable.h" />
     <ClInclude Include="LinearHashTable.h" />
   </ItemGroup>

@@ -2,62 +2,7 @@
 #include <cmath>
 #include <exception>
 #include <iostream>
-
-//
-//	-------- from https://en.cppreference.com/w/cpp/types/void_t --------
-//
-
-// Variable template that checks if a type has begin() and end() member functions
-template <typename, typename = void>
-constexpr bool is_iterable{};
-
-template <typename T>
-constexpr bool is_iterable<
-	T,
-	std::void_t< decltype(std::declval<T>().begin()),
-	decltype(std::declval<T>().end())
-	>
-> = true;
-
-//
-//	---------------------------------------------------------------------
-//
-
-//
-//		TODO Move hash functions inside the LinearHashTable class (somehow)
-//
-
-// O(1) space - types
-template<typename K, 
-	std::enable_if_t<is_iterable<K>, bool> = true>
-size_t hash(K key, size_t tableSize)
-{
-	const int hashConstant = 2777; // prime
-	size_t hashValue = 0;
-	for (auto iter = key.begin(); iter != key.end(); iter++)
-	{
-		size_t value = (size_t)*iter;
-		hashValue = ((hashValue * hashConstant) % tableSize + value) % tableSize;
-	}
-
-	return hashValue;
-}
-
-// iterable types
-template<typename K, 
-	std::enable_if_t<!is_iterable<K>, bool> = true>
-size_t hash(K key, size_t tableSize)
-{
-	const float hashConstant = (std::sqrt(5) - 1) / 2;
-	size_t value = (size_t)key;
-	size_t hashValue = std::floor(tableSize * std::fmod(value * hashConstant, 1.0f));
-
-	return hashValue;
-}
-
-//
-//		CLASSES
-//
+#include "HashFunctions.h"	
 
 template<typename K, typename V>
 struct LinearTableEntry
@@ -78,8 +23,23 @@ public:
 		_table = new LinearTableEntry<K, V>[_tableSize];
 	}
 
+	size_t hash(K key)
+	{
+		return HashFunctions::hash1<K>(key, _tableSize);
+	}
+
 	void insert(K key, V value) 
 	{
+		// if key entry already in table change it, otherwise insert new
+		size_t itemIndex = findIndex(key);
+		if (itemIndex != -1)
+		{
+			_table[itemIndex].value = value;
+			return;
+		}
+			
+		// didn't find existing entry, insert new one
+		// TODO calls findEmpty entry which probes all the way to the end of cluster just as findIndex, inefficient
 		size_t entryIndex = findEmptyEntry(key);
 		_table[entryIndex].key = key;
 		_table[entryIndex].value = value;
@@ -118,7 +78,7 @@ protected:
 
 	size_t findEmptyEntry(K key)
 	{
-		size_t hashValue = hash(key, _tableSize);
+		size_t hashValue = hash(key);
 
 		while (_table[hashValue].emptyFlag == 0)
 		{
@@ -131,11 +91,11 @@ protected:
 	// returns index of entry with the same key
 	size_t findIndex(K key)
 	{
-		size_t hashValue = hash(key, _tableSize);
+		size_t hashValue = hash(key);
 
 		while (_table[hashValue].emptyFlag != 1)
 		{
-			if (_table[hashValue].key == key)
+			if (_table[hashValue].key == key && _table[hashValue].emptyFlag == 0)
 				return hashValue;
 
 			hashValue = ++hashValue % _tableSize;
