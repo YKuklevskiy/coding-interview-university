@@ -758,14 +758,14 @@ if you can identify the runtime complexity of different algorithms. It's a super
         - [Swap](https://bits.stephan-brumme.com/swap.html)
     - [x] Absolute value:
         - [Absolute Integer](https://bits.stephan-brumme.com/absInteger.html)
-	- [ ] Implement a class representing an integer as a bitvector:
-		- [ ] set_bit(position)
-		- [ ] clear_bit(position)
-		- [ ] flip_bit(position)
-		- [ ] modify_bit(position, state) // sets bit to state
-		- [ ] get_bit(position) : bool
-		- [ ] count_bits() : int (using population count method)
-		- [ ] count_different_bits(bitvector) : int
+	- [x] Implement a class representing an integer as a bitvector:
+		- [x] set_bit(position)
+		- [x] clear_bit(position)
+		- [x] flip_bit(position)
+		- [x] modify_bit(position, state) // sets bit to state
+		- [x] get_bit(position) : bool
+		- [x] count_bits() : int (using population count method)
+		- [x] count_different_bits(bitvector) : int
 
 ## Trees
 
